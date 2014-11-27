@@ -1,13 +1,18 @@
 __author__ = 'David'
 
-from turtle import *
+import tkinter
 
-color('red', 'yellow')
-begin_fill()
-while True:
-    forward(200)
-    left(170)
-    if abs(pos()) < 1:
-        break
-end_fill()
-done()
+top = tkinter.Tk()
+
+C = tkinter.Canvas(top, bg="blue", height=250, width=300)
+
+coord = 10, 50, 240, 210
+arc = C.create_arc(coord, start=0, extent=150, fill="red")
+
+C.pack()
+top.mainloop()
+
+print('fuck the world')
+
+import vispy
+
