@@ -26,22 +26,27 @@ class HuffmanTreeNode:
         if self.is_parent():
             return "Parent"
         else:
-            if self.value == '\n':
-                return "\\n"
             return self.value
 
     def is_parent(self):
         return hasattr(self, 'a') and isinstance(self.a, HuffmanTreeNode) \
             and hasattr(self, 'b') and isinstance(self.b, HuffmanTreeNode)
 
+    def has_parent(self):
+        return hasattr(self, 'parent') and isinstance(self.parent, HuffmanTreeNode)
+
     def get_parent(self):
         return self.parent
 
-    def get_code(self):
-        if not self.is_parent():
-            return None
+    def get_code(self, code=None):
+        if code is None:
+            code = []
+
+        if self.has_parent():
+            code.insert(0, self.get_bit())
+            return self.get_parent().get_code(code)
         else:
-            return self.parent.get_code()
+            return code
 
     def get_bit(self):
         if self.get_parent() is not None:
@@ -56,7 +61,10 @@ class HuffmanTreeNode:
         if self.is_parent():
             return "{ Parent: , Freq: " + str(self.get_freq()) + " }"
         else:
-            return "{ Value: " + self.get_value() + ", Freq: " + str(self.get_freq()) + " }"
+            value = self.value
+            if value == '\n':
+                value = "\\n"
+            return "{ Value: " + value + ", Freq: " + str(self.get_freq()) + " }"
 
     def __repr__(self):
         return self.__str__()
@@ -146,3 +154,20 @@ print(len(generate_levels(mergeQueue[0])))
 for level in generate_levels(mergeQueue[0]):
     print(level)
 
+for node in nodes:
+    print(node.get_code())
+
+def get_node(nodes, c):
+    for node in nodes:
+        if node.get_value() == c:
+            return node
+    return None
+
+complete_code = []
+for c in text:
+    for b in get_node(nodes, c).get_code():
+        complete_code.append(b)
+
+print(complete_code)
+print(len(text))
+print(len(complete_code)/8)
