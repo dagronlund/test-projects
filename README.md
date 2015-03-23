@@ -1,4 +1,4 @@
-python-neural-nets
-==================
+Some Random Stuff
+=================
 
-A simple test platform for developing neural nets in python.
+I am probably just going to put random stuff here, hope it works.
