@@ -7,6 +7,7 @@ class HuffmanTreeNode:
     def __init__(self, value=None, freq=None, a=None, b=None):
         self.value = value
         self.freq = freq
+        self.code = None
 
         self.a = a
         if a is not None:
@@ -38,15 +39,18 @@ class HuffmanTreeNode:
     def get_parent(self):
         return self.parent
 
-    def get_code(self, code=None):
-        if code is None:
-            code = []
+    def get_code(self):#, code=None):
+        if self.code is not None:
+            return self.code
 
         if self.has_parent():
-            code.insert(0, self.get_bit())
-            return self.get_parent().get_code(code)
+            #code.insert(0, self.get_bit())
+            #return self.get_parent().get_code(code)
+            self.code = [self.get_bit()] + self.get_parent().get_code()
         else:
-            return code
+            return []
+
+        return self.code
 
     def get_bit(self):
         if self.get_parent() is not None:
