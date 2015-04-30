@@ -4,6 +4,17 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 
 
+def safe_float_range(start, stop, steps):
+    step = (stop - start) / steps
+    value = start
+    while value < stop:
+        if value + step <= stop:  # Makes sure an accurate step is reported
+            yield value, step
+        else:
+            yield value, stop - value
+        value += step
+
+
 def float_range(start, stop, step, inclusive_list=False, include_end=False):
     i = start
     if not inclusive_list:
@@ -57,8 +68,7 @@ def adaptive_definite_integral(f, a, b, epsilon, method):
 
 def definite_integral(f, a, b, steps, method):
     area = 0.0
-    step = (b - a) / steps
-    for x in float_range(a, b, step):
+    for x, step in safe_float_range(a, b, steps):
         area += method(f, x, step)
     return area
 
@@ -100,24 +110,12 @@ def run_trap_test(f, a, b):
 
 print("Actual: ", 0.5)
 run_trap_test(polynomial, 0.0, 1.0)
-# #print("Rectangular: ", definite_integral(polynomial, 0.0, 1.0, 10, rect_estimate))
-# print("Trapezoidal: ", definite_integral(polynomial, 0.0, 1.0, 10, trap_estimate))
-# #print("Quadratic: ", definite_integral(polynomial, 0.0, 1.0, 10, quad_estimate))
-# print("Romberg: ", romberg_integral(polynomial, 0.0, 1.0, trap_estimate))
-# print()
 
 print("Actual: ", 2)
 run_trap_test(trig, 0.0, math.pi)
-# #print("Rectangular: ", definite_integral(trig, 0.0, math.pi, 20, rect_estimate))
-# print("Trapezoidal: ", definite_integral(trig, 0.0, math.pi, 20, trap_estimate))
-# #print("Quadratic: ", definite_integral(trig, 0.0, math.pi, 20, quad_estimate))
-# print("Romberg: ", romberg_integral(trig, 0.0, math.pi, trap_estimate))
-# print()
 
 print("Actual: ", math.log(2.0) - math.log(1.0))
 run_trap_test(lambda x: 1 / x, 1.0, 2.0)
-#print("Romberg: ", romberg_integral(lambda x: 1 / x, 1.0, 2.0, trap_estimate))
-#print()
 
 print("Actual: ", math.sin(4.5 * math.pi) - math.sin(0.0))
 run_trap_test(lambda x: math.cos(x), 0.0, 4.5 * math.pi)
