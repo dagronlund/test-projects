@@ -6,13 +6,15 @@ from matplotlib.patches import Rectangle
 
 def safe_float_range(start, stop, steps):
     step = (stop - start) / steps
-    value = start
-    while value < stop:
-        if value + step <= stop:  # Makes sure an accurate step is reported
-            yield value, step
-        else:
-            yield value, stop - value
-        value += step
+    # value = start
+    # while value < stop:
+    #     if value + step <= stop:  # Makes sure an accurate step is reported
+    #         yield value, step
+    #     else:
+    #         yield value, stop - value
+    #     value += step
+    for i in range(0, int(steps)):
+        yield (start + i * step), step
 
 
 def float_range(start, stop, step, inclusive_list=False, include_end=False):
