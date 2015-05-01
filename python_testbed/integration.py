@@ -1,8 +1,11 @@
 __author__ = 'David'
+import sys
 import math
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 
+# Useful constants
+epsilon = sys.float_info.epsilon
 
 def safe_float_range(start, stop, steps):
     step = (stop - start) / steps
@@ -75,6 +78,10 @@ def definite_integral(f, a, b, steps, method):
     return area
 
 
+def derivative(f, x):
+    return (f(x + epsilon * 2) - f(x)) / (epsilon * 2)
+
+
 def rect_estimate(f, x, step):
     return f(x + step / 2) * step
 
@@ -109,6 +116,9 @@ def run_trap_test(f, a, b):
     trap_counter = 0
     print("Adaptive Romberg: ", romberg_integral(f, a, b, trap_estimate, adaptive=True), trap_counter)
     print()
+
+print("Actual: ", 22.5)
+print("Derivative: ", derivative(polynomial, 0.5))
 
 print("Actual: ", 0.5)
 run_trap_test(polynomial, 0.0, 1.0)
