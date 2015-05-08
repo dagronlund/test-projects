@@ -1,12 +1,16 @@
 #pragma once
 
-#include "GL\glew.h"
-#include "GL\freeglut.h"
-#include "ShaderLoader.h"
-#include "gmtl\Vec.h"
-
 #include <iostream>
 
+#include "GL\glew.h"
+#include "GL\freeglut.h"
+#include "vec3.hpp"
+#include "glm\glm.hpp"
+
+#include "ShaderLoader.h"
+#include "ObjFileParser.h"
+
+using namespace glm;
 using namespace Core;
 
 GLuint program;
@@ -27,8 +31,19 @@ void init(void) {
 	program = shaderLoader.CreateProgram("test_vs.glsl", "test_fs.glsl");
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-	gmtl::Vec3f v;
+	vec3 p = vec3(0.0f, 0.0f, 0.0f);
 	
+	std::cout << "Stuff here: " << std::endl;
+	ObjFileParser tfp("model_test.obj");
+	//std::vector<std::string> list = tfp.ParseLine();
+	//for (std::vector<std::string>::size_type i = 0; i < list.size(); ++i) {
+	//	std::cout << list[i].c_str() << std::endl;
+	//}
+	////std::string s;
+	////while (!(s = tfp.ReadLine()).empty())
+	////	std::cout << s.c_str() << std::endl;
+	//tfp.ParseLine();
+
 }
 
 int main(int argc, char **argv) {
@@ -42,7 +57,7 @@ int main(int argc, char **argv) {
 
 	GLenum error = glewInit();
 	if (GLEW_OK != error)
-		std::cout << "Um... fuck?" << std::endl;
+		std::cout << "Um... what?" << std::endl;
 
 	if (glewIsSupported("GL_VERSION_4_4")) {
 		std::cout << "GLEW version 4.4 supported." << std::endl;

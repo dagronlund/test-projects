@@ -1,0 +1,3 @@
+Currently going to try using the OpenGL mathematics library.
+http://glm.g-truc.net/0.9.6/index.html
+http://glm.g-truc.net/0.9.6/glm-0.9.6.pdf

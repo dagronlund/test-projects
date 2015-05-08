@@ -30,6 +30,12 @@
     <ClCompile Include="ShaderLoader.cpp">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
+    <ClCompile Include="ObjFileParser.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderingModelData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -44,5 +50,20 @@
     <ClInclude Include="ShaderLoader.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
+    <ClInclude Include="ObjFileParser.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderingModelData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="notes.txt" />
+    <Text Include="readme.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="model_test.obj">
+      <Filter>Resource Files</Filter>
+    </Resource>
   </ItemGroup>
 </Project>
