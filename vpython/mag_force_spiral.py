@@ -22,57 +22,63 @@ num = 200
 aNum = 50
 bNum = 16
 
-## FUNCTIONS
+# Helpful physics code wrapper
+class PhysicsObject:
+
+    def __init__(self, shape, pos=vector(), mass=0, momentum=vector(), charge=0):
+        self.shape = shape
+        self.pos = pos
+        self.shape.pos = pos
+        self.mass = mass
+        self.momentum = momentum
+        self.charge = charge
+
+    def getVelocity(self):
+        return self.momentum / self.mass
+
+    def impulse(self, f, dt):
+        self.momentum += f * dt
+
+    def move(self, dt):
+        self.pos += self.getVelocity() * dt
+        self.shape.pos = self.pos
+
+# Utility functions
 def emField(charge, pos):
     if (pos - charge.pos).mag2 != 0:
-        return (oofpez * charge.charge) / (pos - charge.pos).mag2 * (pos - charge.pos).norm();
+        return (oofpez * charge.charge) / (pos - charge.pos).mag2 * (pos - charge.pos).norm()
     else:
         return vector(0, 0, 0)                                
 
 def emForce(chargeA, chargeB):
     return emField(chargeA, chargeB.pos) * chargeB.charge
 
-def updateMomentum(obj, force):
-    obj.momentum += force * dt;
-
-def getVelocity(obj):
-    return obj.momentum / obj.mass;
-
-def updatePosition(obj):
-    obj.pos += getVelocity(obj) * dt;
-
-## OBJECTS
+# Create object arrays
 objects = []
 movingObjects = []
 
-objectPositions = numpy.empty(num * 3, dtype = float)
-thetas = numpy.linspace(0.0, 2.0 * pi, num)[0 : num - 1]
+# Create static objects
+for theta in numpy.linspace(0.0, 2.0 * pi, num)[0 : num - 1]:
+    shape = sphere(radius = .02, color=color.red)
+    objects.append(PhysicsObject(shape, pos=vector(cos(theta) * r, sin(theta) * r, 0), charge = q / num))
 
-for theta in thetas:
-    objects.append(sphere(pos=vector(cos(theta) * r, sin(theta) * r, 0), radius = .02, color=color.red, charge = q / num))
+# Create moving object
+shape = sphere(radius = .1, color=color.blue, make_trail=True)
+movingObjects.append(PhysicsObject(shape, pos=vector(0, 0, .2), charge = qproton, momentum = vector(0,0,2e-16 * 0), mass = mproton))
 
-#cylinder(pos = vector(-l/2, 0, 0), axis = vector(l, 0, 0), radius = .02, opacity = 0.2)
-
-#for x in range(int(-ceil(num / 2) + 1), int(ceil(num / 2))):
-#    objects.append(sphere(pos=vector(x * l / num, 0, 0), radius = .01, color=color.red, charge = q / num))
-
-movingObjects.append(sphere(pos=vector(0, 0, .2), radius = .1, color=color.blue,
-        charge = qproton, momentum = vector(0,0,2e-16 * 0), mass = mproton, make_trail=True))
-
-## CALCULATIONS
+# Draw static arrows
 for theta1 in numpy.linspace(0.0, 2.0 * pi, aNum)[0:aNum - 1]:
     for theta2 in numpy.linspace(0.0, 2.0 * pi, bNum)[0:bNum - 1]:
-        #for y in range(-2, 3):
-        #for z in range(-2, 3): 
         pos = vector(cos(theta1) * r, sin(theta1) * r, 0) + vector(cos(theta2) * r / 8, 0, sin(theta2) * r / 8).rotate(theta1, vector(0, 0, 1))
         field = reduce(vector.__add__, map(lambda o: emField(o, pos), objects))
         arrow(pos = pos, axis = field / 5e4, color = color.orange)
 
+# Simulation loop
 while 1:
     for mo in movingObjects:
-        for fo in objects: 
-            updateMomentum(mo, emForce(fo, mo))
+        for fo in objects:
+            mo.impulse(emForce(fo, mo), dt)
     for mo in movingObjects:
-        updatePosition(mo)
+        mo.move(dt)
     rate(5/dt)
 
