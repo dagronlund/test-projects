@@ -13,7 +13,6 @@ mproton = 1.7e-14
 rproton = 0.8775e-15
 fieldFactor = 2e-21
 step = 4e-10
-dt = .01
 
 q = 2e-7
 l = 1
@@ -53,32 +52,70 @@ def emField(charge, pos):
 def emForce(chargeA, chargeB):
     return emField(chargeA, chargeB.pos) * chargeB.charge
 
+def magForce(charge, field): # f= qv x B
+    return cross(charge.charge * charge.getVelocity(), field)
+
+def safe_float_range(start, stop, steps):
+    step = (stop - start) / steps
+    for i in range(0, int(steps)):
+        yield (start + i * step), step
+
+def charge_in_ring():
+    # Create lists of objects
+    objects = []
+    movingObjects = []
+
+    # Create static objects
+    for theta in numpy.linspace(0.0, 2.0 * pi, num)[0 : num - 1]:
+        shape = sphere(radius = .02, color=color.red)
+        objects.append(PhysicsObject(shape, pos=vector(cos(theta) * r, sin(theta) * r, 0), charge = q / num))
+    
+    # Create moving object
+    shape = sphere(radius = .1, color=color.blue, make_trail=True)
+    movingObjects.append(PhysicsObject(shape, pos=vector(0, 0, .2), charge = qproton, momentum = vector(0,0,2e-16 * 0), mass = mproton))
+
+    # Draw static arrows
+    for theta1 in numpy.linspace(0.0, 2.0 * pi, aNum)[0:aNum - 1]:
+        for theta2 in numpy.linspace(0.0, 2.0 * pi, bNum)[0:bNum - 1]:
+            pos = vector(cos(theta1) * r, sin(theta1) * r, 0) + vector(cos(theta2) * r / 8, 0, sin(theta2) * r / 8).rotate(theta1, vector(0, 0, 1))
+            field = reduce(vector.__add__, map(lambda o: emField(o, pos), objects))
+            arrow(pos = pos, axis = field / 5e4, color = color.orange)
+
+    return objects, movingObjects, 0.01
+
+
+def charge_in_mag_field():
+    # Create lists of objects
+    objects = []
+    movingObjects = []
+
+    # Create static objects
+    for x, step in safe_float_range(-0.8, 0.8, 10):
+        for z, step in safe_float_range(-0.8, 0.8, 10):
+            shape = arrow(axis=vector(0, .2, 0) / 3.0, color=color.red)
+            objects.append(PhysicsObject(shape, pos=vector(x, 0, z)))
+
+    # Create moving objects
+    shape = sphere(radius = .01, color=color.blue, make_trail=True)
+    movingObjects.append(PhysicsObject(shape, pos=vector(0, 0.15, 0.3),
+            charge = qproton, momentum = vector(-2e6,0,0) * mproton,
+            mass = mproton))
+
+    return objects, movingObjects, 1e-10
+
 # Create object arrays
-objects = []
-movingObjects = []
+#objects, movingObjects = charge_in_ring()
+objects, movingObjects, dt = charge_in_mag_field()
 
-# Create static objects
-for theta in numpy.linspace(0.0, 2.0 * pi, num)[0 : num - 1]:
-    shape = sphere(radius = .02, color=color.red)
-    objects.append(PhysicsObject(shape, pos=vector(cos(theta) * r, sin(theta) * r, 0), charge = q / num))
-
-# Create moving object
-shape = sphere(radius = .1, color=color.blue, make_trail=True)
-movingObjects.append(PhysicsObject(shape, pos=vector(0, 0, .2), charge = qproton, momentum = vector(0,0,2e-16 * 0), mass = mproton))
-
-# Draw static arrows
-for theta1 in numpy.linspace(0.0, 2.0 * pi, aNum)[0:aNum - 1]:
-    for theta2 in numpy.linspace(0.0, 2.0 * pi, bNum)[0:bNum - 1]:
-        pos = vector(cos(theta1) * r, sin(theta1) * r, 0) + vector(cos(theta2) * r / 8, 0, sin(theta2) * r / 8).rotate(theta1, vector(0, 0, 1))
-        field = reduce(vector.__add__, map(lambda o: emField(o, pos), objects))
-        arrow(pos = pos, axis = field / 5e4, color = color.orange)
+# Define constants
+mag_field = vector(0.0, 0.2, 0.0)
 
 # Simulation loop
 while 1:
     for mo in movingObjects:
-        for fo in objects:
-            mo.impulse(emForce(fo, mo), dt)
+       mo.impulse(magForce(mo, mag_field), dt)
+        #for fo in objects:
+        #    mo.impulse(emForce(fo, mo), dt)
     for mo in movingObjects:
         mo.move(dt)
-    rate(5/dt)
-
+    rate(30)
