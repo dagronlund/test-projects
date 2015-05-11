@@ -8,8 +8,8 @@ scene.height = 600
 
 ## CONSTANTS
 oofpez = 9e9   ## OneOverFourPiEpsilonZero
-qproton = -1.6e-19
-mproton = 1.7e-14
+qproton = 1.6e-19
+mproton = 1.67e-27
 rproton = 0.8775e-15
 fieldFactor = 2e-21
 step = 4e-10
@@ -24,12 +24,12 @@ bNum = 16
 # Helpful physics code wrapper
 class PhysicsObject:
 
-    def __init__(self, shape, pos=vector(), mass=0, momentum=vector(), charge=0):
+    def __init__(self, shape, pos=vector(), mass=0, velocity=vector(), charge=0):
         self.shape = shape
         self.pos = pos
         self.shape.pos = pos
         self.mass = mass
-        self.momentum = momentum
+        self.momentum = velocity * mass
         self.charge = charge
 
     def getVelocity(self):
@@ -52,8 +52,8 @@ def emField(charge, pos):
 def emForce(chargeA, chargeB):
     return emField(chargeA, chargeB.pos) * chargeB.charge
 
-def magForce(charge, field): # f= qv x B
-    return cross(charge.charge * charge.getVelocity(), field)
+def magForce(charge, field): # f = qv x B
+    return (charge.charge * charge.getVelocity()).cross(field)
 
 def safe_float_range(start, stop, steps):
     step = (stop - start) / steps
@@ -72,7 +72,7 @@ def charge_in_ring():
     
     # Create moving object
     shape = sphere(radius = .1, color=color.blue, make_trail=True)
-    movingObjects.append(PhysicsObject(shape, pos=vector(0, 0, .2), charge = qproton, momentum = vector(0,0,2e-16 * 0), mass = mproton))
+    movingObjects.append(PhysicsObject(shape, pos=vector(0, 0, .2), charge = qproton, velocity = vector(0,0,0), mass = mproton))
 
     # Draw static arrows
     for theta1 in numpy.linspace(0.0, 2.0 * pi, aNum)[0:aNum - 1]:
@@ -92,16 +92,14 @@ def charge_in_mag_field():
     # Create static objects
     for x, step in safe_float_range(-0.8, 0.8, 10):
         for z, step in safe_float_range(-0.8, 0.8, 10):
-            shape = arrow(axis=vector(0, .2, 0) / 3.0, color=color.red)
-            objects.append(PhysicsObject(shape, pos=vector(x, 0, z)))
+            arrow(pos=vector(x, 0, z), axis=vector(0, .2, 0) / 2.0, color=color.red)
 
     # Create moving objects
     shape = sphere(radius = .01, color=color.blue, make_trail=True)
     movingObjects.append(PhysicsObject(shape, pos=vector(0, 0.15, 0.3),
-            charge = qproton, momentum = vector(-2e6,0,0) * mproton,
-            mass = mproton))
+            charge = qproton, velocity = vector(-2e6,0,0), mass = mproton))
 
-    return objects, movingObjects, 1e-10
+    return objects, movingObjects, 1e-9
 
 # Create object arrays
 #objects, movingObjects = charge_in_ring()
@@ -111,11 +109,9 @@ objects, movingObjects, dt = charge_in_mag_field()
 mag_field = vector(0.0, 0.2, 0.0)
 
 # Simulation loop
-while 1:
+while True:
     for mo in movingObjects:
-       mo.impulse(magForce(mo, mag_field), dt)
-        #for fo in objects:
-        #    mo.impulse(emForce(fo, mo), dt)
+        mo.impulse(magForce(mo, mag_field), dt)
     for mo in movingObjects:
         mo.move(dt)
     rate(30)
