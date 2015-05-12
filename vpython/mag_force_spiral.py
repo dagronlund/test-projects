@@ -8,6 +8,7 @@ scene.height = 600
 
 ## CONSTANTS
 oofpez = 9e9   ## OneOverFourPiEpsilonZero
+munofp = 1e-7 # MuNotOverFourPi
 qproton = 1.6e-19
 mproton = 1.67e-27
 rproton = 0.8775e-15
@@ -55,6 +56,14 @@ def emForce(chargeA, chargeB):
 def magForce(charge, field): # f = qv x B
     return (charge.charge * charge.getVelocity()).cross(field)
 
+def magDipoleField(moment, origin, pos):
+    r = (pos - origin).mag
+    if r != 0:
+        r_hat = (pos - origin).norm()
+        return (munofp) / pow(r, 3) * (3 * dot(moment, r_hat) * r_hat - moment) 
+    else:
+        return vector(0, 0, 0)
+
 def safe_float_range(start, stop, steps):
     step = (stop - start) / steps
     for i in range(0, int(steps)):
@@ -83,6 +92,8 @@ def charge_in_ring():
 
     return objects, movingObjects, 0.01
 
+dipole_moment = vector(0, 20000, 0)
+dipole_origin = vector(0, 0, 0)
 
 def charge_in_mag_field():
     # Create lists of objects
@@ -92,12 +103,21 @@ def charge_in_mag_field():
     # Create static objects
     for x, step in safe_float_range(-0.8, 0.8, 10):
         for z, step in safe_float_range(-0.8, 0.8, 10):
-            arrow(pos=vector(x, 0, z), axis=vector(0, .2, 0) / 2.0, color=color.red)
+            arrow(pos=vector(x, 0, z), axis=vector(0, .2, 0), color=color.red)
+
+    for x, step in safe_float_range(-0.8, 0.8, 10):
+        for y, step in safe_float_range(-0.8, 0.8, 10):
+            for z, step in safe_float_range(-0.8, 0.8, 10):
+                pos = vector(x, y, z)
+                axis = magDipoleField(dipole_moment, dipole_origin, pos)
+                # axis_mag = axis.mag
+                # axis = axis.norm() * math.log(axis_mag, 2)
+                arrow(pos = pos, axis = axis, color=color.blue)
 
     # Create moving objects
     shape = sphere(radius = .01, color=color.blue, make_trail=True)
-    movingObjects.append(PhysicsObject(shape, pos=vector(0, 0.15, 0.3),
-            charge = qproton, velocity = vector(-2e6,0,0), mass = mproton))
+    movingObjects.append(PhysicsObject(shape, pos=vector(0, 0.2, 0),
+            charge = qproton, velocity = vector(-2e6,1e6,0), mass = mproton))
 
     return objects, movingObjects, 1e-9
 
@@ -111,7 +131,8 @@ mag_field = vector(0.0, 0.2, 0.0)
 # Simulation loop
 while True:
     for mo in movingObjects:
-        mo.impulse(magForce(mo, mag_field), dt)
+        dipole_field = magDipoleField(dipole_moment, dipole_origin, mo.pos)
+        mo.impulse(magForce(mo, dipole_field), dt)
     for mo in movingObjects:
         mo.move(dt)
     rate(30)
