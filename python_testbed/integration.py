@@ -1,21 +1,12 @@
 __author__ = 'David'
 import sys
 import math
-import matplotlib.pyplot as plt
-from matplotlib.patches import Rectangle
 
 # Useful constants
 epsilon = sys.float_info.epsilon
 
 def safe_float_range(start, stop, steps):
     step = (stop - start) / steps
-    # value = start
-    # while value < stop:
-    #     if value + step <= stop:  # Makes sure an accurate step is reported
-    #         yield value, step
-    #     else:
-    #         yield value, stop - value
-    #     value += step
     for i in range(0, int(steps)):
         yield (start + i * step), step
 
@@ -117,38 +108,3 @@ def run_trap_test(f, a, b):
     print("Adaptive Romberg: ", romberg_integral(f, a, b, trap_estimate, adaptive=True), trap_counter)
     print()
 
-print("Actual: ", 22.5)
-print("Derivative: ", derivative(polynomial, 0.5))
-
-print("Actual: ", 0.5)
-run_trap_test(polynomial, 0.0, 1.0)
-
-print("Actual: ", 2)
-run_trap_test(trig, 0.0, math.pi)
-
-print("Actual: ", math.log(2.0) - math.log(1.0))
-run_trap_test(lambda x: 1 / x, 1.0, 2.0)
-
-print("Actual: ", math.sin(4.5 * math.pi) - math.sin(0.0))
-run_trap_test(lambda x: math.cos(x), 0.0, 4.5 * math.pi)
-
-exit()
-
-step = 0.01
-a = 0.0
-b = 1.0
-
-xlist = []
-ylist = []
-for x in float_range(a, b, step, True, True):
-    xlist.append(x)
-    ylist.append(polynomial(x))
-plt.plot(xlist, ylist)
-
-axis = plt.gca()
-for x in float_range(a, b, step, True, True):
-    axis.add_patch(Rectangle((x, 0), step, polynomial(x + step / 2), facecolor="grey"))
-
-plt.xlabel("X-Axis")
-plt.ylabel("Y-Axis")
-plt.show()

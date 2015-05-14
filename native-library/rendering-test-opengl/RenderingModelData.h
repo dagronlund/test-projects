@@ -1,6 +1,7 @@
 #pragma once
 
-namespace Core {
+namespace Core 
+{
 
 	class RenderingModelData
 	{
@@ -13,6 +14,8 @@ namespace Core {
 	public:
 		RenderingModelData(int *indices, float *vertices, float *normals,
 			float *texCoords);
+		RenderingModelData(int *vIndices, int *nIndices, int *tIndices, 
+			float *vertices, float *normals, float *texCoords);
 		~RenderingModelData(void);
 
 		int *GetIndices(void);
