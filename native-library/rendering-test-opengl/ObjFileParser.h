@@ -16,7 +16,10 @@ namespace Core
 		std::vector<std::string> SeparateLine(std::string line);
 		bool ParseLine();
 
-		void ParseVertex(std::vector<std::string> &list, std::vector<float> &vertices);
+		void ParseVector(const std::vector<std::string> &list,
+			std::vector<float> &vectors);
+		void ParseFace(const std::vector<std::string> &list,
+			std::vector<int> &faces);
 
 	public:
 		ObjFileParser(char *fileName);
