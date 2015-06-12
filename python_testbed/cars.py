@@ -9,7 +9,7 @@ tesla = [(0.0, 600.0), (18.8, 600.0), (22.4, 500.0), (24.6, 455.0), (26.8, 420.0
 
 
 
-class Tesla:
+class Camaro:
 
 	def __init__(self):
 		self.velocity = 0
@@ -29,9 +29,8 @@ class Tesla:
 		self.velocity = 0
 		self.position = 0
 
-	def getAcceleration(self):
-        
-		return 1
+	def getAcceleration(self, torgue):
+		return (torgue * 9.71) / (0.2667 * 2239.0)
 
 	def simulate(self, dt):
 		self.velocity += self.getAcceleration() * dt
