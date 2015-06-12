@@ -37,9 +37,9 @@ vector<string> ObjFileParser::SeparateLine(string line)
 	line = TrimString(line); // Read line and clean it
 	size_t delimiter = line.find(' '); // Find first space
 	while (!line.empty()) // While string still exists
-	{ 
+	{
 		if (delimiter == string::npos) // If no spaces left...
-		{ 
+		{
 			list.push_back(line); // Add what remains to list
 			line = string(); // Empty line to end loop
 		} 
@@ -56,7 +56,10 @@ vector<string> ObjFileParser::SeparateLine(string line)
 bool ObjFileParser::ParseLine() 
 {
 	// Temporary data storage
-	vector<float> vertices();
+	vector<float> vertices;
+	vector<float> normals;
+	vector<float> texCoords;
+	vector<int> faces;
 
 	string line = ReadLine();
 	while (!line.empty())
@@ -67,15 +70,19 @@ bool ObjFileParser::ParseLine()
 		}
 		else if (list[0] == "v") // Line is vertex
 		{
+			ParseVector(list, vertices);
 		}
 		else if (list[0] == "vn") // Line is normal
 		{
+			ParseVector(list, normals);
 		}
 		else if (list[0] == "vt") // Line is texture coordinate
 		{
+			ParseVector(list, texCoords);
 		}
 		else if (list[0] == "f") // Line is face
 		{
+			ParseFace(list, faces);
 		}
 		else if (list[0] == "o") // Line defines object
 		{
@@ -96,8 +103,25 @@ bool ObjFileParser::ParseLine()
 	}
 }
 
-void ObjFileParser::ParseVertex(vector<string> &list, vector<float> &vertices) 
+void ObjFileParser::ParseVector(const vector<string> &list, 
+	vector<float> &vectors)
 {
-	float f = std::stof(list[0]);
+	vectors.push_back(std::stof(list[1])); // x
+	vectors.push_back(std::stof(list[2])); // y
+	if (list.size() == 4) // z is optional for textures
+		vectors.push_back(std::stof(list[3])); // z
+}
 
+void ObjFileParser::ParseFace(const vector<string> &list,
+	vector<int> &faces) 
+{
+	faces.push_back(std::stoi(list[1]) - 1);
+	faces.push_back(std::stoi(list[2]) - 1);
+	faces.push_back(std::stoi(list[3]) - 1);
+	if (list.size() > 4) // Four Corners Provided
+	{
+		faces.push_back(std::stoi(list[3]) - 1);
+		faces.push_back(std::stoi(list[4]) - 1);
+		faces.push_back(std::stoi(list[1]) - 1);
+	}
 }
