@@ -112,16 +112,52 @@ void ObjFileParser::ParseVector(const vector<string> &list,
 		vectors.push_back(std::stof(list[3])); // z
 }
 
+void ObjFileParser::ParseFaceComponent(const string &component,
+	vector<int> &faces) 
+{
+	size_t first = component.find('/');
+	
+	if (first == -1) // Vertex Only 
+	{
+		faces.push_back(stoi(component) - 1);
+		status = ObjFileFaceStatus::VERTEX_ONLY;
+	}
+	else
+	{
+		size_t second = component.find('/', first + 1);
+
+		if (second == -1) // Vertex, Texture 
+		{
+			faces.push_back(stoi(component.substr(0, first)) - 1);
+			faces.push_back(stoi(component.substr(first + 1)) - 1);
+			status = ObjFileFaceStatus::VERTEX_TEXTURE;
+		}
+		else if (second == first + 1) // Vertex, Normal
+		{
+			faces.push_back(stoi(component.substr(0, first)) - 1);
+			faces.push_back(stoi(component.substr(second + 1)) - 1);
+			status = ObjFileFaceStatus::VERTEX_NORMAL;
+		}
+		else // Vertex, Texture, Normal
+		{
+			faces.push_back(stoi(component.substr(0, first)) - 1);
+			faces.push_back(stoi(component.substr(first + 1, second - (first + 1))) - 1);
+			faces.push_back(stoi(component.substr(second + 1)) - 1);
+			status = ObjFileFaceStatus::VERTEX_TEXTURE_NORMAL;
+		}
+	}
+}
+
 void ObjFileParser::ParseFace(const vector<string> &list,
 	vector<int> &faces) 
 {
-	faces.push_back(std::stoi(list[1]) - 1);
-	faces.push_back(std::stoi(list[2]) - 1);
-	faces.push_back(std::stoi(list[3]) - 1);
+	ParseFaceComponent(list[1], faces);
+	ParseFaceComponent(list[2], faces);
+	ParseFaceComponent(list[3], faces);
 	if (list.size() > 4) // Four Corners Provided
 	{
-		faces.push_back(std::stoi(list[3]) - 1);
-		faces.push_back(std::stoi(list[4]) - 1);
-		faces.push_back(std::stoi(list[1]) - 1);
+		ParseFaceComponent(list[3], faces);
+		ParseFaceComponent(list[4], faces);
+		ParseFaceComponent(list[1], faces);
 	}
 }
