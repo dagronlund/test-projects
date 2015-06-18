@@ -11,17 +11,6 @@ RenderingModelData::RenderingModelData(int *indices, float *vertices, float *nor
 	this->texCoords = texCoords;
 }
 
-RenderingModelData::RenderingModelData(int *vIndices, int *nIndices, int *tIndices, 
-	float *vertices, float *normals, float *texCoords)
-{
-	// TODO: Multi-to-single index converison code
-	//this->indices = indices;
-	
-	this->vertices = vertices;
-	this->normals = normals;
-	this->texCoords = texCoords;
-}
-
 RenderingModelData::~RenderingModelData(void)
 {
 	delete indices;

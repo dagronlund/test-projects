@@ -18,6 +18,7 @@ string TrimString(string s)
 ObjFileParser::ObjFileParser(char *fileName) 
 {
 	fileStream = ifstream(fileName);
+	ParseFile();
 }
 
 ObjFileParser::~ObjFileParser(void) 
@@ -53,7 +54,7 @@ vector<string> ObjFileParser::SeparateLine(string line)
 	return list;
 }
 
-bool ObjFileParser::ParseLine() 
+void ObjFileParser::ParseFile() 
 {
 	// Temporary data storage
 	vector<float> vertices;
@@ -101,6 +102,7 @@ bool ObjFileParser::ParseLine()
 		}
 		line = ReadLine();
 	}
+
 }
 
 void ObjFileParser::ParseVector(const vector<string> &list, 
@@ -109,7 +111,9 @@ void ObjFileParser::ParseVector(const vector<string> &list,
 	vectors.push_back(std::stof(list[1])); // x
 	vectors.push_back(std::stof(list[2])); // y
 	if (list.size() == 4) // z is optional for textures
+	{
 		vectors.push_back(std::stof(list[3])); // z
+	}
 }
 
 void ObjFileParser::ParseFaceComponent(const string &component,
@@ -120,7 +124,7 @@ void ObjFileParser::ParseFaceComponent(const string &component,
 	if (first == -1) // Vertex Only 
 	{
 		faces.push_back(stoi(component) - 1);
-		status = ObjFileFaceStatus::VERTEX_ONLY;
+		AssertFaceStatus(ObjFileFaceStatus::VERTEX_ONLY);
 	}
 	else
 	{
@@ -130,20 +134,20 @@ void ObjFileParser::ParseFaceComponent(const string &component,
 		{
 			faces.push_back(stoi(component.substr(0, first)) - 1);
 			faces.push_back(stoi(component.substr(first + 1)) - 1);
-			status = ObjFileFaceStatus::VERTEX_TEXTURE;
+			AssertFaceStatus(ObjFileFaceStatus::VERTEX_TEXTURE);
 		}
 		else if (second == first + 1) // Vertex, Normal
 		{
 			faces.push_back(stoi(component.substr(0, first)) - 1);
 			faces.push_back(stoi(component.substr(second + 1)) - 1);
-			status = ObjFileFaceStatus::VERTEX_NORMAL;
+			AssertFaceStatus(ObjFileFaceStatus::VERTEX_NORMAL);
 		}
 		else // Vertex, Texture, Normal
 		{
 			faces.push_back(stoi(component.substr(0, first)) - 1);
 			faces.push_back(stoi(component.substr(first + 1, second - (first + 1))) - 1);
 			faces.push_back(stoi(component.substr(second + 1)) - 1);
-			status = ObjFileFaceStatus::VERTEX_TEXTURE_NORMAL;
+			AssertFaceStatus(ObjFileFaceStatus::VERTEX_TEXTURE_NORMAL);
 		}
 	}
 }
@@ -160,4 +164,21 @@ void ObjFileParser::ParseFace(const vector<string> &list,
 		ParseFaceComponent(list[4], faces);
 		ParseFaceComponent(list[1], faces);
 	}
+}
+
+
+void ObjFileParser::AssertFaceStatus(ObjFileFaceStatus newStatus) {
+	if (status == ObjFileFaceStatus::UNKNOWN || status == newStatus)
+	{
+		status = newStatus; // Everything is clear
+	}
+	else
+	{
+		throw exception("Faces provided are in an inconsistent format.");
+	}
+}
+
+RenderingModelData* ObjFileParser::GetRenderingData() 
+{
+	return data;
 }

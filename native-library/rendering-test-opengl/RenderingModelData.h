@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 namespace Core 
 {
 
@@ -14,8 +16,6 @@ namespace Core
 	public:
 		RenderingModelData(int *indices, float *vertices, float *normals,
 			float *texCoords);
-		RenderingModelData(int *vIndices, int *nIndices, int *tIndices, 
-			float *vertices, float *normals, float *texCoords);
 		~RenderingModelData(void);
 
 		int *GetIndices(void);

@@ -4,6 +4,8 @@
 #include <fstream>
 #include <vector>
 
+#include "RenderingModelData.h"
+
 namespace Core 
 {
 	enum class ObjFileFaceStatus {
@@ -15,10 +17,11 @@ namespace Core
 	private:
 		std::ifstream fileStream;
 		ObjFileFaceStatus status = ObjFileFaceStatus::UNKNOWN;
+		RenderingModelData *data;
 
 		std::string ReadLine();
 		std::vector<std::string> SeparateLine(std::string line);
-		bool ParseLine();
+		void ParseFile();
 
 		void ParseVector(const std::vector<std::string> &list,
 			std::vector<float> &vectors);
@@ -26,9 +29,11 @@ namespace Core
 			std::vector<int> &faces);
 		void ParseFaceComponent(const std::string &component, 
 			std::vector<int> &faces);
+		void AssertFaceStatus(ObjFileFaceStatus newStatus);
 
 	public:
 		ObjFileParser(char *fileName);
 		~ObjFileParser(void);
+		RenderingModelData* GetRenderingData();
 	};
 }
