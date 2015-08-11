@@ -167,7 +167,8 @@ void ObjFileParser::ParseFace(const vector<string> &list,
 }
 
 
-void ObjFileParser::AssertFaceStatus(ObjFileFaceStatus newStatus) {
+void ObjFileParser::AssertFaceStatus(ObjFileFaceStatus newStatus) 
+{
 	if (status == ObjFileFaceStatus::UNKNOWN || status == newStatus)
 	{
 		status = newStatus; // Everything is clear

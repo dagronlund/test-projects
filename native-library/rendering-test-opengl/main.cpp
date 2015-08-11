@@ -11,6 +11,8 @@
 #include "ShaderLoader.h"
 #include "ObjFileParser.h"
 
+#pragma comment(lib, "glew32.lib")
+
 using namespace glm;
 using namespace Core;
 
