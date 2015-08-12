@@ -22,11 +22,7 @@ namespace Core
 		std::string ReadLine();
 		std::vector<std::string> SeparateLine(std::string line);
 		void ParseFile();
-		void FillRenderingData(std::vector<float> &vertices,
-			std::vector<float> &texCoords,
-			std::vector<float> &normals,
-			std::vector<int> &faces);
-
+		void FillRenderingData(std::vector<int> &faces);
 		void ParseVector(const std::vector<std::string> &list,
 			std::vector<float> &vectors);
 		void ParseFace(const std::vector<std::string> &list,

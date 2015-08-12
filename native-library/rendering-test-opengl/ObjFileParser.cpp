@@ -25,13 +25,6 @@ ObjFileParser::~ObjFileParser(void)
 {
 }
 
-string ObjFileParser::ReadLine() 
-{
-	string line;
-	getline(fileStream, line);
-	return line;
-}
-
 vector<string> ObjFileParser::SeparateLine(string line) 
 {
 	vector<string> list;
@@ -56,30 +49,28 @@ vector<string> ObjFileParser::SeparateLine(string line)
 
 void ObjFileParser::ParseFile() 
 {
-	// Temporary data storage
-	vector<float> vertices;
-	vector<float> normals;
-	vector<float> texCoords;
 	vector<int> faces;
-
-	string line = ReadLine();
-	while (!line.empty())
+	data = new RenderingModelData();
+	
+	string line;
+	while (!fileStream.eof())
 	{
+		getline(fileStream, line, '\n');
 		vector<string> list = SeparateLine(line);
-		if (list[0] == "" || list[0].find('#') == 0) // Line is empty or comment
+		if (list.size() == 0 || list[0] == "" || list[0].find('#') == 0) // Line is empty or comment
 		{
 		}
 		else if (list[0] == "v") // Line is vertex
 		{
-			ParseVector(list, vertices);
+			ParseVector(list, *data->GetVertices());
 		}
 		else if (list[0] == "vn") // Line is normal
 		{
-			ParseVector(list, normals);
+			ParseVector(list, *data->GetNormals());
 		}
 		else if (list[0] == "vt") // Line is texture coordinate
 		{
-			ParseVector(list, texCoords);
+			ParseVector(list, *data->GetTexCoords());
 		}
 		else if (list[0] == "f") // Line is face
 		{
@@ -101,27 +92,40 @@ void ObjFileParser::ParseFile()
 		{
 			throw exception("Unexpected character encountered in model file.");
 		}
-		line = ReadLine();
 	}
 
+	FillRenderingData(faces);
 }
 
-void ObjFileParser::FillRenderingData(vector<float> &vertices, vector<float> &texCoords, 
-	vector<float> &normals, vector<int> &faces)
+void ObjFileParser::FillRenderingData(vector<int> &faces)
 {
 	if (status == ObjFileFaceStatus::VERTEX) 
 	{
-		int *indicesCopy = new int[faces.size()];
-		std::copy(faces.begin(), faces.end(), indicesCopy);
-
-		float *verticesCopy = new float[vertices.size()];
-		std::copy(vertices.begin(), vertices.end(), verticesCopy);
-
-		data = new RenderingModelData(indicesCopy, verticesCopy, NULL, NULL);
+		*data->GetIndices() = faces;
 	}
 	else if (status == ObjFileFaceStatus::VERTEX_TEXTURE) 
 	{
+		/*RenderingModelData *newData = new RenderingModelData();
+		for (int i = 0; i < data->GetIndices()->size() / 6; i++) 
+		{
+			int offset = i * 6;
 
+			int vi = (*data->GetIndices())[offset];
+			newData->GetVertices()->push_back((*data->GetVertices())[vi]);
+			vi = (*data->GetIndices())[offset + 2];
+			newData->GetVertices()->push_back((*data->GetVertices())[vi]);
+			vi = (*data->GetIndices())[offset + 4];
+			newData->GetVertices()->push_back((*data->GetVertices())[vi]);
+			
+			int ti = (*data->GetIndices())[offset + 1];
+			newData->GetVertices()->push_back((*data->GetTexCoords())[ti]);
+			ti = (*data->GetIndices())[offset + 3];
+			newData->GetVertices()->push_back((*data->GetTexCoords())[ti]);
+			ti = (*data->GetIndices())[offset + 5];
+			newData->GetVertices()->push_back((*data->GetTexCoords())[ti]);
+		
+			newData->GetIndices()->push_back(i);
+		}*/
 	}
 }
 
@@ -188,10 +192,7 @@ void ObjFileParser::ParseFace(const vector<string> &list,
 
 void ObjFileParser::AssertFaceStatus(ObjFileFaceStatus newStatus) 
 {
-	if (status == newStatus)
-	{
-	}
-	else if (status == ObjFileFaceStatus::UNKNOWN) 
+	if (status == newStatus || status == ObjFileFaceStatus::UNKNOWN)
 	{
 		status = newStatus;
 	}

@@ -45,6 +45,12 @@
     <None Include="test_fs.glsl">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="teapot.3d">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="triangle.3d">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ShaderLoader.h">
@@ -60,10 +66,5 @@
   <ItemGroup>
     <Text Include="notes.txt" />
     <Text Include="readme.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="model_test.obj">
-      <Filter>Resource Files</Filter>
-    </Resource>
   </ItemGroup>
 </Project>

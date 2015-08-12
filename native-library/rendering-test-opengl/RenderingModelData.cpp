@@ -1,41 +1,33 @@
 #include "RenderingModelData.h"
 
+using namespace std;
 using namespace Core;
 
-RenderingModelData::RenderingModelData(int *indices, float *vertices, float *normals,
-	float *texCoords)
+RenderingModelData::RenderingModelData()
 {
-	this->indices = indices;
-	this->vertices = vertices;
-	this->normals = normals;
-	this->texCoords = texCoords;
 }
 
 RenderingModelData::~RenderingModelData(void)
 {
-	delete indices;
-	delete vertices;
-	delete normals;
-	delete texCoords;
 }
 
-int *RenderingModelData::GetIndices(void)
+vector<int>* RenderingModelData::GetIndices(void)
 {
-	return indices;
+	return &indices;
 }
 
-float *RenderingModelData::GetVertices(void)
+vector<float>* RenderingModelData::GetVertices(void)
 {
-	return vertices;
+	return &vertices;
 }
 
-float *RenderingModelData::GetNormals(void)
+vector<float>* RenderingModelData::GetNormals(void)
 {
-	return normals;
+	return &normals;
 }
 
-float *RenderingModelData::GetTexCoords(void)
+vector<float>* RenderingModelData::GetTexCoords(void)
 {
-	return texCoords;
+	return &texCoords;
 }
 
