@@ -29,14 +29,6 @@ void renderScene(void)
 	glutSwapBuffers();
 }
 
-/*
-int var;
-
-void ReturnOne(int c, int i) {
-	var = c % i;
-}
-*/
-
 void init(void) 
 {
 	glEnable(GL_DEPTH_TEST);
@@ -49,42 +41,13 @@ void init(void)
 	std::cout << "Stuff here: " << std::endl;
 	ObjFileParser tfp("model_test.obj");
 	
-	/*std::vector<std::string> list = tfp.ParseLine();
-	for (std::vector<std::string>::size_type i = 0; i < list.size(); ++i) {
-		std::cout << list[i].c_str() << std::endl;
-	}*/
-	//std::string s;
-	//while (!(s = tfp.ReadLine()).empty())
-	//	std::cout << s.c_str() << std::endl;
-	//tfp.ParseLine();
-
-	/*	
-	int val = 223455465;
-
-	clock_t start = clock();
-	int count = 0;
-	for (int i = 0; i < val; i += 1) count += i;
-	clock_t stop = clock();
-	std::cout << count << " " << (double)(stop - start) << std::endl;
-
-	start = clock();
-	count = 0;
-	int i = 0;
-	while (i != val) {
-		count += i;
-		i += 1;
-		ReturnOne(count, i);
-	}
-	stop = clock();
-	std::cout << count << " " << (double)(stop - start) << std::endl;
-	*/
 }
 
 int main(int argc, char **argv) 
 {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
-	glutInitWindowPosition(500, 500);//optional
+	glutInitWindowPosition(500, 500); //optional
 	glutInitWindowSize(800, 600); //optional
 	glutCreateWindow("OpenGL First Window");
 	glEnable(GL_DEPTH_TEST);

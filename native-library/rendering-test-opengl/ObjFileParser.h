@@ -9,7 +9,7 @@
 namespace Core 
 {
 	enum class ObjFileFaceStatus {
-		UNKNOWN, VERTEX_ONLY, VERTEX_TEXTURE, VERTEX_NORMAL, VERTEX_TEXTURE_NORMAL
+		UNKNOWN, VERTEX, VERTEX_TEXTURE, VERTEX_NORMAL, VERTEX_TEXTURE_NORMAL
 	};
 
 	class ObjFileParser 
@@ -22,6 +22,10 @@ namespace Core
 		std::string ReadLine();
 		std::vector<std::string> SeparateLine(std::string line);
 		void ParseFile();
+		void FillRenderingData(std::vector<float> &vertices,
+			std::vector<float> &texCoords,
+			std::vector<float> &normals,
+			std::vector<int> &faces);
 
 		void ParseVector(const std::vector<std::string> &list,
 			std::vector<float> &vectors);

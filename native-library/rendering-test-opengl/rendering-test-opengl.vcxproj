@@ -106,7 +106,8 @@
       <LinkStatus>
       </LinkStatus>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
-      <ShowProgress>LinkVerbose</ShowProgress>
+      <ShowProgress>
+      </ShowProgress>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

@@ -99,10 +99,30 @@ void ObjFileParser::ParseFile()
 		}
 		else // Line contains unknown start sequence
 		{
+			throw exception("Unexpected character encountered in model file.");
 		}
 		line = ReadLine();
 	}
 
+}
+
+void ObjFileParser::FillRenderingData(vector<float> &vertices, vector<float> &texCoords, 
+	vector<float> &normals, vector<int> &faces)
+{
+	if (status == ObjFileFaceStatus::VERTEX) 
+	{
+		int *indicesCopy = new int[faces.size()];
+		std::copy(faces.begin(), faces.end(), indicesCopy);
+
+		float *verticesCopy = new float[vertices.size()];
+		std::copy(vertices.begin(), vertices.end(), verticesCopy);
+
+		data = new RenderingModelData(indicesCopy, verticesCopy, NULL, NULL);
+	}
+	else if (status == ObjFileFaceStatus::VERTEX_TEXTURE) 
+	{
+
+	}
 }
 
 void ObjFileParser::ParseVector(const vector<string> &list, 
@@ -124,7 +144,7 @@ void ObjFileParser::ParseFaceComponent(const string &component,
 	if (first == -1) // Vertex Only 
 	{
 		faces.push_back(stoi(component) - 1);
-		AssertFaceStatus(ObjFileFaceStatus::VERTEX_ONLY);
+		AssertFaceStatus(ObjFileFaceStatus::VERTEX);
 	}
 	else
 	{
@@ -166,12 +186,14 @@ void ObjFileParser::ParseFace(const vector<string> &list,
 	}
 }
 
-
 void ObjFileParser::AssertFaceStatus(ObjFileFaceStatus newStatus) 
 {
-	if (status == ObjFileFaceStatus::UNKNOWN || status == newStatus)
+	if (status == newStatus)
 	{
-		status = newStatus; // Everything is clear
+	}
+	else if (status == ObjFileFaceStatus::UNKNOWN) 
+	{
+		status = newStatus;
 	}
 	else
 	{
