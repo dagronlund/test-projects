@@ -105,7 +105,7 @@ void ObjFileParser::FillRenderingData(vector<int> &faces)
 	}
 	else if (status == ObjFileFaceStatus::VERTEX_TEXTURE) 
 	{
-		/*RenderingModelData *newData = new RenderingModelData();
+		RenderingModelData *newData = new RenderingModelData();
 		for (int i = 0; i < data->GetIndices()->size() / 6; i++) 
 		{
 			int offset = i * 6;
@@ -125,7 +125,7 @@ void ObjFileParser::FillRenderingData(vector<int> &faces)
 			newData->GetVertices()->push_back((*data->GetTexCoords())[ti]);
 		
 			newData->GetIndices()->push_back(i);
-		}*/
+		}
 	}
 }
 

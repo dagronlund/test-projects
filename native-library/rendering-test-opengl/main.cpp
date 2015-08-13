@@ -20,7 +20,6 @@ using namespace glm;
 using namespace Core;
 
 GLuint program;
-GLuint vbo;
 GLuint vao;
 GLuint indexBuffer;
 int indicesCount;
@@ -34,37 +33,41 @@ void keyPress(unsigned char key, int mouseX, int mouseY)
 {
 	if (key == 'w')
 	{
-		z += .1f;
+		z += 1;
 		std::cout << z << std::endl;
 	}
 	else if (key == 's')
 	{
-		z -= .1f;
+		z -= 1;
 		std::cout << z << std::endl;
 	}
 	else if (key == 'a')
 	{
-		x -= .1;
+		x -= 1;
 		std::cout << x << std::endl;
 	}
 	else if (key == 'd')
 	{
-		x += .1;
+		x += 1;
 		std::cout << x << std::endl;
 	}
 
 	glutPostRedisplay();
 }
 
-mat4 cameraMatrix()
+mat4 GetProjectionMatrix()
 {
-	mat4 projection = perspective(45.0f, 4.0f / 3.0f, 0.1f, 100.f);
-	mat4 view = translate(mat4(1.0f), vec3(-x, 0.0f, z));
-	//view = rotate(view, pitch, vec3(-1.0f, 0.0f, 0.0f));
-	//view = rotate(view, yaw, vec3(0.0f, 1.0f, 0.0f));
-	//glm::mat4 Model = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f));
-	//return projection * view;
-	return projection * view;
+	return perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.f);
+}
+
+mat4 GetViewMatrix()
+{
+	return translate(mat4(1.0f), vec3(-x, 0.0f, z));
+}
+
+mat4 GetCameraMatrix()
+{
+	return GetProjectionMatrix() * GetViewMatrix();
 }
 
 void init(void) 
@@ -75,18 +78,27 @@ void init(void)
 	program = shaderLoader.CreateProgram("test_vs.glsl", "test_fs.glsl");
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-	ObjFileParser tfp("triangle.3d");
+	ObjFileParser tfp("teapot_normals.3d");
 	RenderingModelData *data = tfp.GetRenderingData();
 	
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	GLuint vertexBuffer;
+	glGenBuffers(1, &vertexBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
 	glBufferData(GL_ARRAY_BUFFER, data->GetVertices()->size() * sizeof(float), 
 		data->GetVertices()->data(), GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0);
+
+	GLuint normalBuffer;
+	glGenBuffers(1, &normalBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
+	glBufferData(GL_ARRAY_BUFFER, data->GetNormals()->size() * sizeof(float),
+		data->GetNormals()->data(), GL_STATIC_DRAW);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0);
 
 	glGenBuffers(1, &indexBuffer);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
@@ -102,17 +114,19 @@ void renderScene(void)
 
 	glBindVertexArray(vao);
 	glUseProgram(program);
-	GLuint matId = glGetUniformLocation(program, "vpMat");
-	mat4 cMat = cameraMatrix();
-	glUniformMatrix4fv(matId, 1, GL_FALSE, &cameraMatrix()[0][0]);
 
-	//glDrawArrays(GL_TRIANGLES, 0, 3);
+	glUniformMatrix4fv(glGetUniformLocation(program, "mvpMatrix"), 
+		1, GL_FALSE, &GetCameraMatrix()[0][0]);
+
+	glUniformMatrix4fv(glGetUniformLocation(program, "mvMatrix"),
+		1, GL_FALSE, &GetViewMatrix()[0][0]);
+
+	mat3 stuff = transpose(inverse(mat3(GetViewMatrix())));
+	glUniformMatrix3fv(glGetUniformLocation(program, "nMatrix"),
+		1, GL_FALSE, &transpose(inverse(mat3(GetViewMatrix())))[0][0]);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
-
-
 	glDrawElements(GL_TRIANGLES, indicesCount, GL_UNSIGNED_INT, (void*)0);
-
 
 	glutSwapBuffers();
 

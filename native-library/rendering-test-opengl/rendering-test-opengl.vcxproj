@@ -151,8 +151,13 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="teapot.3d" />
-    <None Include="test_vs.glsl" />
-    <None Include="test_fs.glsl" />
+    <None Include="teapot_normals.3d" />
+    <None Include="test_vs.glsl">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="test_fs.glsl">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
     <None Include="triangle.3d" />
   </ItemGroup>
   <ItemGroup>
