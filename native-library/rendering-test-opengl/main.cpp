@@ -10,6 +10,8 @@
 #include "glm\glm.hpp"
 #include "glm\gtc\matrix_transform.hpp"
 
+#include "lodepng.h"
+
 #include "ShaderLoader.h"
 #include "ObjFileParser.h"
 
@@ -26,8 +28,9 @@ int indicesCount;
 
 float pitch = 0;
 float yaw = 0;
-float z = 0;
+float z = -150;
 float x = 0;
+int renderType = 3;
 
 void keyPress(unsigned char key, int mouseX, int mouseY)
 {
@@ -51,13 +54,21 @@ void keyPress(unsigned char key, int mouseX, int mouseY)
 		x += 1;
 		std::cout << x << std::endl;
 	}
+	else if (key == ' ')
+	{
+		renderType++;
+		if (renderType > 3)
+		{
+			renderType = 0;
+		}
+	}
 
 	glutPostRedisplay();
 }
 
 mat4 GetProjectionMatrix()
 {
-	return perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.f);
+	return perspective(45.0f, 4.0f / 3.0f, 0.1f, 500.0f);
 }
 
 mat4 GetViewMatrix()
@@ -78,7 +89,7 @@ void init(void)
 	program = shaderLoader.CreateProgram("test_vs.glsl", "test_fs.glsl");
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-	ObjFileParser tfp("teapot_normals.3d");
+	ObjFileParser tfp("teapot_textures.3d");
 	RenderingModelData *data = tfp.GetRenderingData();
 	
 	glGenVertexArrays(1, &vao);
@@ -100,11 +111,31 @@ void init(void)
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0);
 
+	GLuint texCoordBuffer;
+	glGenBuffers(1, &texCoordBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, texCoordBuffer);
+	glBufferData(GL_ARRAY_BUFFER, data->GetTexCoords()->size() * sizeof(float),
+		data->GetTexCoords()->data(), GL_STATIC_DRAW);
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0);
+
 	glGenBuffers(1, &indexBuffer);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, data->GetIndices()->size() * sizeof(unsigned int), 
 		data->GetIndices()->data(), GL_STATIC_DRAW);
 	indicesCount = data->GetIndices()->size();
+
+	std::vector<unsigned char> image;
+	unsigned int width, height;
+	unsigned int error = lodepng::decode(image, width, height, "texture.png");
+	std::cout << error << std::endl;
+
+	GLuint texture;
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image.data());
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 }
 
 void renderScene(void)
@@ -121,9 +152,10 @@ void renderScene(void)
 	glUniformMatrix4fv(glGetUniformLocation(program, "mvMatrix"),
 		1, GL_FALSE, &GetViewMatrix()[0][0]);
 
-	mat3 stuff = transpose(inverse(mat3(GetViewMatrix())));
 	glUniformMatrix3fv(glGetUniformLocation(program, "nMatrix"),
 		1, GL_FALSE, &transpose(inverse(mat3(GetViewMatrix())))[0][0]);
+
+	glUniform1i(glGetUniformLocation(program, "renderType"), renderType);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
 	glDrawElements(GL_TRIANGLES, indicesCount, GL_UNSIGNED_INT, (void*)0);

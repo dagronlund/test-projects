@@ -1,4 +1,4 @@
-__author__ = 'dgronlund'
+__author__ = 'David'
 
 from time import sleep
 from integration import *

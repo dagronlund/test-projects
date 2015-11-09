@@ -33,8 +33,11 @@
     <ClCompile Include="ObjFileParser.cpp">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
-    <ClCompile Include="RenderingModelData.cpp">
+    <ClCompile Include="lodepng.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderingModelData.cpp">
+      <Filter>Source Files\Core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -51,7 +54,10 @@
     <None Include="triangle.3d">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="teapot_normals.3d">
+    <None Include="teapot_textures.3d">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="teapot_unified_normals.3d">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
@@ -62,12 +68,20 @@
     <ClInclude Include="ObjFileParser.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
-    <ClInclude Include="RenderingModelData.h">
+    <ClInclude Include="lodepng.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderingModelData.h">
+      <Filter>Header Files\Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="notes.txt" />
     <Text Include="readme.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="texture.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

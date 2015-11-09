@@ -106,26 +106,80 @@ void ObjFileParser::FillRenderingData(vector<int> &faces)
 	else if (status == ObjFileFaceStatus::VERTEX_TEXTURE) 
 	{
 		RenderingModelData *newData = new RenderingModelData();
-		for (int i = 0; i < data->GetIndices()->size() / 6; i++) 
+		for (int i = 0; i < faces.size() / 6; i++)
 		{
 			int offset = i * 6;
 
-			int vi = (*data->GetIndices())[offset];
-			newData->GetVertices()->push_back((*data->GetVertices())[vi]);
-			vi = (*data->GetIndices())[offset + 2];
-			newData->GetVertices()->push_back((*data->GetVertices())[vi]);
-			vi = (*data->GetIndices())[offset + 4];
-			newData->GetVertices()->push_back((*data->GetVertices())[vi]);
-			
-			int ti = (*data->GetIndices())[offset + 1];
-			newData->GetVertices()->push_back((*data->GetTexCoords())[ti]);
-			ti = (*data->GetIndices())[offset + 3];
-			newData->GetVertices()->push_back((*data->GetTexCoords())[ti]);
-			ti = (*data->GetIndices())[offset + 5];
-			newData->GetVertices()->push_back((*data->GetTexCoords())[ti]);
-		
-			newData->GetIndices()->push_back(i);
+			newData->GetVertices()->insert(newData->GetVertices()->end(),
+				data->GetVertices()->begin() + (faces[offset] * 3),
+				data->GetVertices()->begin() + (faces[offset] * 3) + 3);
+			newData->GetVertices()->insert(newData->GetVertices()->end(),
+				data->GetVertices()->begin() + (faces[offset + 2] * 3),
+				data->GetVertices()->begin() + (faces[offset + 2] * 3) + 3);
+			newData->GetVertices()->insert(newData->GetVertices()->end(),
+				data->GetVertices()->begin() + (faces[offset + 4] * 3),
+				data->GetVertices()->begin() + (faces[offset + 4] * 3) + 3);
+
+			newData->GetTexCoords()->insert(newData->GetTexCoords()->end(),
+				data->GetTexCoords()->begin() + (faces[offset + 1] * 3),
+				data->GetTexCoords()->begin() + (faces[offset + 1] * 3) + 3);
+			newData->GetTexCoords()->insert(newData->GetTexCoords()->end(),
+				data->GetTexCoords()->begin() + (faces[offset + 3] * 3),
+				data->GetTexCoords()->begin() + (faces[offset + 3] * 3) + 3);
+			newData->GetTexCoords()->insert(newData->GetTexCoords()->end(),
+				data->GetTexCoords()->begin() + (faces[offset + 5] * 3),
+				data->GetTexCoords()->begin() + (faces[offset + 5] * 3) + 3);
+
+			for (int j = 0; j < 3; j++)
+			{
+				newData->GetIndices()->push_back(i * 3 + j);
+			}
 		}
+		data = newData;
+	}
+	else if (status == ObjFileFaceStatus::VERTEX_TEXTURE_NORMAL) 
+	{
+		RenderingModelData *newData = new RenderingModelData();
+		for (int i = 0; i < faces.size() / 9; i++)
+		{
+			int offset = i * 9;
+
+			newData->GetVertices()->insert(newData->GetVertices()->end(),
+				data->GetVertices()->begin() + (faces[offset] * 3),
+				data->GetVertices()->begin() + (faces[offset] * 3) + 3);
+			newData->GetVertices()->insert(newData->GetVertices()->end(),
+				data->GetVertices()->begin() + (faces[offset + 3] * 3),
+				data->GetVertices()->begin() + (faces[offset + 3] * 3) + 3);
+			newData->GetVertices()->insert(newData->GetVertices()->end(),
+				data->GetVertices()->begin() + (faces[offset + 6] * 3),
+				data->GetVertices()->begin() + (faces[offset + 6] * 3) + 3);
+
+			newData->GetTexCoords()->insert(newData->GetTexCoords()->end(),
+				data->GetTexCoords()->begin() + (faces[offset + 1] * 3),
+				data->GetTexCoords()->begin() + (faces[offset + 1] * 3) + 3);
+			newData->GetTexCoords()->insert(newData->GetTexCoords()->end(),
+				data->GetTexCoords()->begin() + (faces[offset + 4] * 3),
+				data->GetTexCoords()->begin() + (faces[offset + 4] * 3) + 3);
+			newData->GetTexCoords()->insert(newData->GetTexCoords()->end(),
+				data->GetTexCoords()->begin() + (faces[offset + 7] * 3),
+				data->GetTexCoords()->begin() + (faces[offset + 7] * 3) + 3);
+
+			newData->GetNormals()->insert(newData->GetNormals()->end(),
+				data->GetNormals()->begin() + (faces[offset + 2] * 3),
+				data->GetNormals()->begin() + (faces[offset + 2] * 3) + 3);
+			newData->GetNormals()->insert(newData->GetNormals()->end(),
+				data->GetNormals()->begin() + (faces[offset + 5] * 3),
+				data->GetNormals()->begin() + (faces[offset + 5] * 3) + 3);
+			newData->GetNormals()->insert(newData->GetNormals()->end(),
+				data->GetNormals()->begin() + (faces[offset + 8] * 3),
+				data->GetNormals()->begin() + (faces[offset + 8] * 3) + 3);
+
+			for (int j = 0; j < 3; j++)
+			{
+				newData->GetIndices()->push_back(i * 3 + j);
+			}
+		}
+		data = newData;
 	}
 }
 
@@ -137,6 +191,10 @@ void ObjFileParser::ParseVector(const vector<string> &list,
 	if (list.size() == 4) // z is optional for textures
 	{
 		vectors.push_back(std::stof(list[3])); // z
+	}
+	else // if z doesn't exist, assume it is zero
+	{
+		vectors.push_back(0);
 	}
 }
 
